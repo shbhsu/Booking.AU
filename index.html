@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Booking.AU</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link href='style/style.css' rel='stylesheet' />
+  <link href='style/fullcalendar.css' rel='stylesheet' />
+  <link rel="stylesheet" type="text/css" href="dist/semantic.css">
+  <script src="js/jquery.js"></script>
+  <script src="dist/semantic.min.js"></script>
+  <script src="js/moment.js"></script>
+  <script src="js/fullcalendar.js"></script>
+  <script>
+    $(function () {
+
+
+
+      var settings = {
+        "crossDomain": true,
+        "url": "https://aucal.pdis.nat.gov.tw/auCal",
+        "method": "GET",
+      }
+
+      $.ajax(settings).done(function (response) {
+        console.log(response);
+        var objBooking = JSON.parse(response);
+        var objEvent = {
+
+        };
+        var objEvents = [];
+        objBooking.booking.forEach(slots => {
+          slots.slots.forEach(slot => {
+
+            objEvent = {
+              title: slot.available == false ? '不可預約' : '可預約',
+              start: moment(slot.start, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
+              end: moment(slot.end, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
+              color: slot.available == false ? '#183458' : '#0eb9cd',
+              available: slot.available
+            }
+            objEvents.push(objEvent);
+          });
+
+        });
+
+
+        $('#calendar').fullCalendar({
+          eventRender: function (event, element) {
+
+            if (event.available) {
+              element.find(".fc-title").append("<i class='edit icon floatright'></i>");
+              element.addClass("available")
+            }
+          },
+          eventClick: function (calEvent, jsEvent, view) {
+
+            if (calEvent.available) {
+              $('.ui.modal').modal('show');
+              //$('.ui.form').form('reset');
+              $('.ui.error.message').text('');
+              $('#selectStart').text(moment(calEvent.start).format("YYYY-MM-DD HH:mm Z"));
+              $('#selectEnd').text(moment(calEvent.end).format("YYYY-MM-DD HH:mm Z"));
+
+            }
+          },
+          header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,basicWeek,basicDay'
+          },
+          navLinks: true,
+          defaultDate: new Date(),
+          defaultView: 'month',
+          height: 'auto',
+          eventLimit: 6,
+          eventBackgroundColor: '#183458',
+          timeFormat: 'h:mmt',
+
+          editable: false,
+          // eventLimit: true, // allow "more" link when too many events
+          validRange: {
+            start: new Date(),
+            end: '2018-06-01'
+          },
+          events: objEvents
+        });
+
+
+      });
+
+
+
+
+    });
+  </script>
+
+
+</head>
+
+<body>
+  <div class="ui  large borderless fluid menu">
+    <a href="" class="header item">
+      <img src="images/pdis-logo.png" alt="" class="logo">
+
+    </a>
+
+    <div class="right menu">
+
+      <div class="item">
+        <i class="cog icon"></i>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="ui container">
+
+
+    <div class="ui card">
+      <div class="content">
+        <div class="header">注意事項</div>
+      </div>
+      <div class="content">
+        <div class="ui small feed">
+          <div class="event">
+            <div class="content">
+              <div class="summary">
+                <p> 本系統僅提供預約14:00-17:00</p>
+                <p>拜會說明和行事曆可參見
+                  <a href="http://silofficehour.pdis.tw"> http://silofficehour.pdis.tw</a>
+                </p>
+                <p> 實際情況仍以現場為準，敬請見諒</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="ui grid">
+      <div class="ui sixteen wide column">
+        <div id="calendar"></div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <div class="ui modal ">
+    <i class="close icon"></i>
+    <div class="header">
+      拜會資訊
+    </div>
+    <div class="ui form content">
+      <div class="content">
+        <div class="ui error message"></div>
+        <div class="field">
+          <label>預約時段</label>
+
+          <span id="selectStart"></span> ～
+          <div id="selectEnd"></div>
+
+        </div>
+        <div class="field">
+          <label>拜會人姓名</label>
+          <input type="text" id="visitor_name" placeholder="姓名">
+        </div>
+        <div class="field">
+          <label>可聯繫的email</label>
+          <input type="text" id="visitor_email" placeholder="Email">
+        </div>
+        <div class="field">
+          <label>單位名稱</label>
+          <input type="text" id="visitor_dept" placeholder="單位名稱">
+        </div>
+        <div class="field">
+          <label>拜會內容說明</label>
+          <textarea rows="3" id="visitor_description"></textarea>
+        </div>
+        <div class="field floatright">
+          <div class="ui clear button">Clear</div>
+          <div class="ui positive right labeled icon submit button" onclick="if (confirm('送出後將無法再次更改，確定要送出表單嗎?'))submitbooking();else return;">
+            確定送出
+            <i class="checkmark icon"></i>
+          </div>
+        </div>
+        <div class="field floatright">
+
+          <hr/>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+
+</body>
+
+
+<script>
+  function submitbooking() {
+
+
+   
+      var bookingData = {
+        start: new Date($('#selectStart').text()).toISOString(),
+        end: new Date($('#selectEnd').text()).toISOString(),
+        username: $('#visitor_name').val(),
+        email: $('#visitor_email').val(),
+        department: $('#visitor_dept').val(),
+        description: $('#visitor_description').val()
+      }
+
+      var postData = {
+
+        "crossDomain": true,
+        "url": "https://aucal.pdis.nat.gov.tw/reserve",
+        "method": "POST",
+        "dataType": 'application/json',
+        "data": JSON.stringify(bookingData)
+      }
+
+      $.ajax(postData).done(function (response,error) {
+        alert(response.message);
+        console.log(response);
+      });
+  
+  }
+
+</script>
+
+<script>
+
+
+
+  $('.ui.form')
+    .form({
+      fields: {
+        visitor_name: {
+          identifier: 'visitor_name',
+          rules: [
+            {
+              type: 'empty',
+              prompt: '請輸入姓名'
+            }
+          ]
+        }
+        ,
+        visitor_email: {
+          identifier: 'visitor_email',
+          rules: [
+            {
+              type: 'email',
+              prompt: '請輸入正確的email'
+            }
+          ]
+        }
+        ,
+        visitor_dept: {
+          identifier: 'visitor_dept',
+          rules: [
+            {
+              type: 'empty',
+              prompt: '請輸入單位名稱'
+            }
+          ]
+        }
+        ,
+        visitor_description: {
+          identifier: 'visitor_description',
+          rules: [
+            {
+              type: 'empty',
+              prompt: '請輸入拜會內容說明'
+            }
+          ]
+        }
+      }
+    });
+</script>
+
+
+</html>
