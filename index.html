@@ -22,8 +22,10 @@
     var objEvents = [];
     function BindData() {
 
-      var Wednesdays = getWednesday(4, new Date().getDate());
+      //兩天後~四個月
+      var Wednesdays = getWednesday(4, new Date(moment().add(2, 'days')).getDate());
 
+      //取得行程
       var settings = {
         "crossDomain": true,
         "url": "https://aucal.pdis.nat.gov.tw/getReserve",
@@ -55,17 +57,17 @@
 
         });
 
+        //可預約時段
+        var availableTimespans = ["T14:00", "T14:30", "T15:00", "T15:30", "T16:00", "T16:30"];
 
-        var availableTimespans = ["T14:00", "T14:30", "T15:00", "T15:30", "T16:00", "T16:30"];//時段切割
+        //判斷是否可預約，加入可預約時段
         Wednesdays.forEach(Wednesday => {
-
-
           availableTimespans.forEach(Timespan => {
-            if ($.inArray((moment(Wednesday).format("YYYY-MM-DD") + Timespan), eventTimes) == -1) {//判斷是否可預約
+            if ($.inArray((moment(Wednesday).format("YYYY-MM-DD") + Timespan), eventTimes) == -1) {
               objEvent = {
                 title: "可預約",
-                start: moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan+":00+0800"),
-                end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan+":00+0800").minute(30).format("YYYY-MM-DDTHH:mm")),
+                start: moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800"),
+                end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800").minute(30).format("YYYY-MM-DDTHH:mm")),
                 color: '#0eb9cd',
                 available: true
               }
@@ -78,7 +80,7 @@
         });
 
 
-
+        //init
         $('#calendar').fullCalendar({
           eventRender: function (event, element) {
 
@@ -253,7 +255,7 @@
         "email": $('#visitor_email').val(),
         "description": $('#visitor_description').val(),
         "department": $('#visitor_dept').val(),
-        "name": $('#visitor_name').val()+" 預約拜會"
+        "name": $('#visitor_name').val() + " 預約拜會"
       })
     })
       .done(function (response, textStatus, jqXHR) {
@@ -287,7 +289,7 @@
 <script>
 
 
-
+  //validation
   $('.ui.form')
     .form({
       fields: {
@@ -336,7 +338,7 @@
 
 
 
-
+  //取得所有禮拜三
   function getWednesday(monthCount, setfirstDate) {
     var d = new Date(),
       month = d.getMonth(),
