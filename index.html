@@ -7,43 +7,76 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link href='style/style.css' rel='stylesheet' />
   <link href='style/fullcalendar.css' rel='stylesheet' />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <link rel="stylesheet" type="text/css" href="dist/semantic.css">
   <script src="js/jquery.js"></script>
   <script src="dist/semantic.min.js"></script>
   <script src="js/moment.js"></script>
   <script src="js/fullcalendar.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>
     $(function () {
+      BindData();
+    });
 
+    var objEvents = [];
+    function BindData() {
 
+      var Wednesdays = getWednesday(4, new Date().getDate());
 
       var settings = {
         "crossDomain": true,
-        "url": "https://aucal.pdis.nat.gov.tw/auCal",
+        "url": "https://aucal.pdis.nat.gov.tw/getReserve",
         "method": "GET",
       }
 
       $.ajax(settings).done(function (response) {
         console.log(response);
-        var objBooking = JSON.parse(response);
+        var objBooking = (response);
         var objEvent = {
 
         };
-        var objEvents = [];
-        objBooking.booking.forEach(slots => {
-          slots.slots.forEach(slot => {
 
-            objEvent = {
-              title: slot.available == false ? '不可預約' : '可預約',
-              start: moment(slot.start, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
-              end: moment(slot.end, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
-              color: slot.available == false ? '#183458' : '#0eb9cd',
-              available: slot.available
-            }
-            objEvents.push(objEvent);
-          });
+        var eventTimes = [];
+
+        objBooking.reservations.forEach(reservation => {
+
+
+          objEvent = {
+            title: reservation.title,
+            start: moment(reservation.bufferedStartDate, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
+            end: moment(reservation.bufferedEndDate, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
+            color: '#183458',
+            available: false
+          }
+          eventTimes.push(moment(reservation.bufferedStartDate, "YYYY-MM-DDTHH:mm").add(8, 'hours').format("YYYY-MM-DDTHH:mm"));
+          objEvents.push(objEvent);
+
 
         });
+
+
+        var availableTimespans = ["T14:00", "T14:30", "T15:00", "T15:30", "T16:00", "T16:30"];//時段切割
+        Wednesdays.forEach(Wednesday => {
+
+
+          availableTimespans.forEach(Timespan => {
+            if ($.inArray((moment(Wednesday).format("YYYY-MM-DD") + Timespan), eventTimes) == -1) {//判斷是否可預約
+              objEvent = {
+                title: "可預約",
+                start: moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan+":00+0800"),
+                end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan+":00+0800").minute(30).format("YYYY-MM-DDTHH:mm")),
+                color: '#0eb9cd',
+                available: true
+              }
+              console.log(objEvent)
+              objEvents.push(objEvent);
+            }
+          });
+
+
+        });
+
 
 
         $('#calendar').fullCalendar({
@@ -62,7 +95,7 @@
               $('.ui.error.message').text('');
               $('#selectStart').text(moment(calEvent.start).format("YYYY-MM-DD HH:mm Z"));
               $('#selectEnd').text(moment(calEvent.end).format("YYYY-MM-DD HH:mm Z"));
-
+              console.log(calEvent.end)
             }
           },
           header: {
@@ -90,10 +123,8 @@
 
       });
 
+    }
 
-
-
-    });
   </script>
 
 
@@ -206,31 +237,49 @@
 <script>
   function submitbooking() {
 
+    // Request (POST https://aucal.pdis.nat.gov.tw/reserve)
 
-   
-      var bookingData = {
-        start: new Date($('#selectStart').text()).toISOString(),
-        end: new Date($('#selectEnd').text()).toISOString(),
-        username: $('#visitor_name').val(),
-        email: $('#visitor_email').val(),
-        department: $('#visitor_dept').val(),
-        description: $('#visitor_description').val()
-      }
-
-      var postData = {
-
-        "crossDomain": true,
-        "url": "https://aucal.pdis.nat.gov.tw/reserve",
-        "method": "POST",
-        "dataType": 'application/json',
-        "data": JSON.stringify(bookingData)
-      }
-
-      $.ajax(postData).done(function (response,error) {
-        alert(response.message);
+    jQuery.ajax({
+      url: "https://aucal.pdis.nat.gov.tw/reserve",
+      type: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      contentType: "application/json",
+      data: JSON.stringify({
+        "end": new Date($('#selectEnd').text()).toISOString(),
+        "start": new Date($('#selectStart').text()).toISOString(),
+        "username": $('#visitor_name').val(),
+        "email": $('#visitor_email').val(),
+        "description": $('#visitor_description').val(),
+        "department": $('#visitor_dept').val(),
+        "name": $('#visitor_name').val()+" 預約拜會"
+      })
+    })
+      .done(function (response, textStatus, jqXHR) {
+        console.log("HTTP Request Succeeded: " + jqXHR.status);
         console.log(response);
+        $('.ui.modal').modal('hide');
+        if (response.message.indexOf("errors") >= 0) {
+          toastr.error(JSON.parse(response.message).message, '預約失敗', { timeOut: 8000 })
+        }
+        else {
+          toastr.info(JSON.parse(response.message).message, '已送出', { timeOut: 8000 })
+        }
+
+
+      })
+      .fail(function (jqXHR, textStatus, errorThrown) {
+        console.log("HTTP Request Failed");
+        toastr.error("伺服器忙碌中請再試一次!", '錯誤', { timeOut: 5000 })
+      })
+      .always(function () {
+        /* ... */
       });
-  
+
+
+
+
   }
 
 </script>
@@ -283,6 +332,33 @@
         }
       }
     });
+
+
+
+
+
+  function getWednesday(monthCount, setfirstDate) {
+    var d = new Date(),
+      month = d.getMonth(),
+      Wednesdays = [];
+
+    d.setDate(setfirstDate);
+    // Get the first Wednesday in the month
+    while (d.getDay() !== 3) {
+      d.setDate(d.getDate() + 1);
+    }
+    var tmpd = new Date();
+    tmpd.setMonth(tmpd.getMonth() + monthCount);
+    var endmonth = tmpd.getMonth();
+
+    // Get all the other Wednesday in the month
+    while (d.getMonth() !== endmonth) {
+      Wednesdays.push(new Date(d.getTime()));
+      d.setDate(d.getDate() + 7);
+    }
+    return Wednesdays;
+  }
+
 </script>
 
 
