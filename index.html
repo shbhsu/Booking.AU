@@ -16,12 +16,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>
     $(function () {
+
       BindData();
     });
 
-    var objEvents = [];
+   
     function BindData() {
-
+      var objEvents = [];
+      $('.ui.segment').css("display", "block")
       //兩天後~四個月
       var Wednesdays = getWednesday(4, new Date(moment().add(2, 'days')).getDate());
 
@@ -33,7 +35,7 @@
       }
 
       $.ajax(settings).done(function (response) {
-        console.log(response);
+        //console.log(response);
         var objBooking = (response);
         var objEvent = {
 
@@ -67,11 +69,11 @@
               objEvent = {
                 title: "可預約",
                 start: moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800"),
-                end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800").minute(30).format("YYYY-MM-DDTHH:mm")),
+                end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800").add(30,'minutes').format("YYYY-MM-DDTHH:mm")),
                 color: '#0eb9cd',
                 available: true
               }
-              console.log(objEvent)
+             
               objEvents.push(objEvent);
             }
           });
@@ -81,6 +83,7 @@
 
 
         //init
+        $('#calendar').fullCalendar('destroy');
         $('#calendar').fullCalendar({
           eventRender: function (event, element) {
 
@@ -97,7 +100,7 @@
               $('.ui.error.message').text('');
               $('#selectStart').text(moment(calEvent.start).format("YYYY-MM-DD HH:mm Z"));
               $('#selectEnd').text(moment(calEvent.end).format("YYYY-MM-DD HH:mm Z"));
-              console.log(calEvent.end)
+          
             }
           },
           header: {
@@ -122,7 +125,7 @@
           events: objEvents
         });
 
-
+        $('.ui.segment').css("display", "none")
       });
 
     }
@@ -181,7 +184,19 @@
     </div>
   </div>
 
-
+  <div class="ui segment" style="position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  z-index: 99;
+  display:none;
+  opacity: 0.8;">
+    <div class="ui active dimmer">
+      <div class="ui medium text loader">Loading</div>
+    </div>
+    <p></p>
+    <p></p>
+  </div>
 
   <div class="ui modal ">
     <i class="close icon"></i>
@@ -190,6 +205,7 @@
     </div>
     <div class="ui form content">
       <div class="content">
+
         <div class="ui error message"></div>
         <div class="field">
           <label>預約時段</label>
@@ -240,7 +256,8 @@
   function submitbooking() {
 
     // Request (POST https://aucal.pdis.nat.gov.tw/reserve)
-
+    $('.ui.segment').css("display", "block")
+    $('.ui.modal').modal('hide');
     jQuery.ajax({
       url: "https://aucal.pdis.nat.gov.tw/reserve",
       type: "POST",
@@ -259,9 +276,7 @@
       })
     })
       .done(function (response, textStatus, jqXHR) {
-        console.log("HTTP Request Succeeded: " + jqXHR.status);
-        console.log(response);
-        $('.ui.modal').modal('hide');
+    
         if (response.message.indexOf("errors") >= 0) {
           toastr.error(JSON.parse(response.message).message, '預約失敗', { timeOut: 8000 })
         }
@@ -277,6 +292,8 @@
       })
       .always(function () {
         /* ... */
+        $('.ui.segment').css("display", "block");
+        BindData();
       });
 
 
