@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
   <title>Booking.AU</title>
@@ -20,10 +20,10 @@
       BindData();
     });
 
-   
+
     function BindData() {
       var objEvents = [];
-      $('.ui.segment').css("display", "block")
+      $('#loading').css("display", "block")
       //兩天後~四個月
       var Wednesdays = getWednesday(4, new Date(moment().add(2, 'days')).getDate());
 
@@ -50,7 +50,7 @@
             title: reservation.title,
             start: moment(reservation.bufferedStartDate, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
             end: moment(reservation.bufferedEndDate, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
-            color: '#183458',
+            color: '#074d71',
             available: false
           }
           eventTimes.push(moment(reservation.bufferedStartDate, "YYYY-MM-DDTHH:mm").add(8, 'hours').format("YYYY-MM-DDTHH:mm"));
@@ -69,11 +69,11 @@
               objEvent = {
                 title: "可預約",
                 start: moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800"),
-                end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800").add(30,'minutes').format("YYYY-MM-DDTHH:mm")),
-                color: '#0eb9cd',
+                end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800").add(30, 'minutes').format("YYYY-MM-DDTHH:mm")),
+                color: '#00897b',
                 available: true
               }
-             
+
               objEvents.push(objEvent);
             }
           });
@@ -100,22 +100,32 @@
               $('.ui.error.message').text('');
               $('#selectStart').text(moment(calEvent.start).format("YYYY-MM-DD HH:mm Z"));
               $('#selectEnd').text(moment(calEvent.end).format("YYYY-MM-DD HH:mm Z"));
-          
+
             }
           },
-          header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'month,basicWeek,basicDay'
+          // header: {
+          //   left: 'prev,next today',
+          //   center: 'title',
+          //   right: 'month,basicWeek,basicDay'
+          // },
+          buttonText: {
+            today: '今天',
+            month: '月',
+            week: '週',
+            day: '日',
+            list: '列表'
           },
+          monthNames: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+          dayNamesShort: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+          //dayNames: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
           navLinks: true,
           defaultDate: new Date(),
           defaultView: 'month',
           height: 'auto',
           eventLimit: 6,
-          eventBackgroundColor: '#183458',
+          eventBackgroundColor: '#074d71',
           timeFormat: 'h:mmt',
-
+          hiddenDays: [1, 2, 4, 5, 6, 0],
           editable: false,
           // eventLimit: true, // allow "more" link when too many events
           validRange: {
@@ -125,7 +135,7 @@
           events: objEvents
         });
 
-        $('.ui.segment').css("display", "none")
+        $('#loading').css("display", "none")
       });
 
     }
@@ -138,43 +148,75 @@
 </head>
 
 <body>
+  <div class="ui fixed inverted menu">
+    <div class="ui container">
+      <a href="index.html" class="header item">
+        <img class="logo" src="images/pdis-logo.png">
 
-  
-  <div class="ui container" style="padding-top: 30px;">
+      </a>
+
+    </div>
+  </div>
 
 
+  <div class="ui main container" style="padding-top: 100px;">
+    <div class="ui grid">
+      <div class=" sixteen wide column">
 
-    <div class="ui  card">
-      <div class="content">
-        <div class="header">注意事項</div>
-      </div>
-      <div class="content">
-        <div class="ui small feed">
-          <div class="event">
-            <div class="content">
-              <div class="summary">
-                <p> 本系統僅提供預約14:00-17:00</p>
-                <p>拜會說明和行事曆可參見
-                  <a href="http://silofficehour.pdis.tw"> http://silofficehour.pdis.tw</a>
-                </p>
-                <p> 實際情況仍以現場為準，敬請見諒</p>
+        <div class="ui  card" style="width: 100%;">
+          <div class="content">
+            <div class="header">
+              <i class="fc-icon-left-double-arrow"></i> 注意事項</div>
+          </div>
+          <div class="content">
+            <div class="ui small feed">
+              <div class="event">
+                <div class="content">
+                  <div class="summary">
+                    <p> 本系統僅提供預約14:00-17:00</p>
+                    <p>拜會說明和行事曆可參見
+                      <a href="http://silofficehour.pdis.tw"> http://silofficehour.pdis.tw</a>
+                    </p>
+                    <p> 實際情況仍以現場為準，敬請見諒</p>
+                  </div>
+                </div>
               </div>
+
             </div>
           </div>
-
         </div>
       </div>
-    </div>
+      <div class=" ten wide column">
 
+      </div>
+
+    </div>
     <div class="ui grid">
-      <div class="ui sixteen wide column">
-        <div id="calendar"></div>
+
+      <div class=" sixteen wide column">
+        <div id="calendar" style="font-size: 16px "></div>
       </div>
 
     </div>
   </div>
 
-  <div class="ui segment" style="position: fixed;
+  <div class="ui inverted section divider"></div>
+  <div class="ui inverted vertical footer segment">
+    <div class="ui center aligned container">
+
+
+      <img src="images/pdis-logo.png" class="ui centered mini image">
+      <div class="ui horizontal inverted small divided link list">
+        <a class="item" target="_blank" href="https://jk.pdis.tw">聯絡我們</a>
+        <a class="item" target="_blank" href="http://socialinnovationlab.iiiedu.org.tw/">社會創新實驗中心</a>
+        <!-- <a class="item" href="#">Terms and Conditions</a>
+          <a class="item" href="#">Privacy Policy</a> -->
+      </div>
+    </div>
+  </div>
+
+
+  <div class="ui segment" id="loading" style="position: fixed;
   height: 100%;
   width: 100%;
   top: 0px;
@@ -193,7 +235,7 @@
     <div class="header">
       拜會資訊
     </div>
-    <div class="ui form content">
+    <form class="ui form content">
       <div class="content">
 
         <div class="ui error message"></div>
@@ -221,8 +263,8 @@
           <textarea rows="3" id="visitor_description"></textarea>
         </div>
         <div class="field floatright">
-          <div class="ui clear button">Clear</div>
-          <div class="ui positive right labeled icon submit button" onclick="if (confirm('送出後將無法再次更改，確定要送出表單嗎?'))submitbooking();else return;">
+          <div class="ui clear button">清除</div>
+          <div class="ui positive right labeled icon submit button" onclick="submitbooking()">
             確定送出
             <i class="checkmark icon"></i>
           </div>
@@ -233,7 +275,7 @@
         </div>
       </div>
 
-    </div>
+    </form>
   </div>
 
 
@@ -244,47 +286,57 @@
 
 <script>
   function submitbooking() {
+    if (confirm('送出後將無法再次更改，確定要送出表單嗎?')) {
+      if ($('#selectEnd').text() == '' || $('#selectStart').text() == '' || $('#visitor_name').val() == '' || $('#visitor_email').val() == '' || $('#visitor_description').val() == '' || $('#visitor_dept').val() == '') {
 
-    // Request (POST https://aucal.pdis.nat.gov.tw/reserve)
-    $('.ui.segment').css("display", "block")
-    $('.ui.modal').modal('hide');
-    jQuery.ajax({
-      url: "https://aucal.pdis.nat.gov.tw/reserve",
-      type: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        "end": new Date($('#selectEnd').text()).toISOString(),
-        "start": new Date($('#selectStart').text()).toISOString(),
-        "username": $('#visitor_name').val(),
-        "email": $('#visitor_email').val(),
-        "description": $('#visitor_description').val(),
-        "department": $('#visitor_dept').val(),
-        "name": $('#visitor_name').val() + " 預約拜會"
-      })
-    })
-      .done(function (response, textStatus, jqXHR) {
-    
-        if (response.message.indexOf("errors") >= 0) {
-          toastr.error(JSON.parse(response.message).message, '預約失敗', { timeOut: 8000 })
-        }
-        else {
-          toastr.info(JSON.parse(response.message).message, '已送出', { timeOut: 8000 })
-        }
+      }
+      else {
+        // Request (POST https://aucal.pdis.nat.gov.tw/reserve)
+        $('#loading').css("display", "block")
+        $('.ui.modal').modal('hide');
+        jQuery.ajax({
+          url: "https://aucal.pdis.nat.gov.tw/reserve",
+          type: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          contentType: "application/json",
+          data: JSON.stringify({
+            "end": new Date($('#selectEnd').text()).toISOString(),
+            "start": new Date($('#selectStart').text()).toISOString(),
+            "username": $('#visitor_name').val(),
+            "email": $('#visitor_email').val(),
+            "description": $('#visitor_description').val(),
+            "department": $('#visitor_dept').val(),
+            "name": $('#visitor_name').val() + " 預約拜會"
+          })
+        })
+          .done(function (response, textStatus, jqXHR) {
+
+            if (response.message.indexOf("errors") >= 0) {
+              toastr.error(JSON.parse(response.message).message, '預約失敗', { timeOut: 8000 })
+            }
+            else {
+              toastr.info(JSON.parse(response.message).message, '已送出', { timeOut: 8000 })
+            }
 
 
-      })
-      .fail(function (jqXHR, textStatus, errorThrown) {
-        console.log("HTTP Request Failed");
-        toastr.error("伺服器忙碌中請再試一次!", '錯誤', { timeOut: 5000 })
-      })
-      .always(function () {
-        /* ... */
-        $('.ui.segment').css("display", "block");
-        BindData();
-      });
+          })
+          .fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("HTTP Request Failed");
+            toastr.error("伺服器忙碌中請再試一次!", '錯誤', { timeOut: 5000 })
+          })
+          .always(function () {
+            /* ... */
+            $('#loading').css("display", "block");
+            BindData();
+          });
+      }
+    }
+    else {
+
+    }
+
 
 
 
