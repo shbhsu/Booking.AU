@@ -50,7 +50,8 @@
             title: reservation.title,
             start: moment(reservation.bufferedStartDate, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
             end: moment(reservation.bufferedEndDate, "YYYY-MM-DDTHH:mm").add(8, 'hours'),
-            color: '#074d71',
+            color: '#fff',
+            textColor :'#000',
             available: false
           }
           eventTimes.push(moment(reservation.bufferedStartDate, "YYYY-MM-DDTHH:mm").add(8, 'hours').format("YYYY-MM-DDTHH:mm"));
@@ -115,10 +116,13 @@
             day: '日',
             list: '列表'
           },
+          dayRender: function (date, cell) {
+            cell.html("<div class='dayTitle'>" + date.format('M/D') + "</div>");
+          },
           monthNames: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
           dayNamesShort: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
           //dayNames: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
-          navLinks: true,
+          navLinks: false,
           defaultDate: new Date(),
           defaultView: 'month',
           height: 'auto',
@@ -193,7 +197,7 @@
     </div>
     <div class="ui grid">
 
-      <div class=" sixteen wide column">
+      <div class=" sixteen wide column ">
         <div id="calendar" style="font-size: 16px "></div>
       </div>
 
