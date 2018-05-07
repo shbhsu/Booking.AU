@@ -6,3 +6,12 @@
   .floatright {
     float: right;
   }
+
+  .fc-day-number{
+    visibility: hidden;
+  }
+  .dayTitle
+  {
+    font-size: 18px;
+    font-weight: bold;
+  }
