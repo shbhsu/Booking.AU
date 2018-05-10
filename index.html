@@ -61,7 +61,7 @@
         });
 
         //可預約時段
-        var availableTimespans = ["T14:00", "T14:30", "T15:00", "T15:30", "T16:00", "T16:30"];
+        var availableTimespans = ["T14:00", "T14:50", "T15:40",  "T16:30"];
 
         //判斷是否可預約，加入可預約時段
         Wednesdays.forEach(Wednesday => {
@@ -71,15 +71,14 @@
                 title: "可預約",
                 start: moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800"),
                 end: moment(moment(moment(Wednesday).format("YYYY-MM-DD") + Timespan + ":00+0800").add(30, 'minutes').format("YYYY-MM-DDTHH:mm")),
-                color: '#00897b',
+                color: '#fff',
+                textColor :'#000',
                 available: true
               }
 
               objEvents.push(objEvent);
             }
           });
-
-
         });
 
 
@@ -89,8 +88,20 @@
           eventRender: function (event, element) {
 
             if (event.available) {
-              element.find(".fc-title").append("<i class='edit icon floatright'></i>");
+            
+              element.find(".fc-title").append("<i class='edit icon ' style='padding-left:10px;'></i>");
               element.addClass("available")
+              element.find(".fc-title").addClass("available-bg")
+            }
+            else if(event.title=='另有公務行程')
+            {
+
+              element.find(".fc-title").addClass("NonReserve-bg")
+            }
+            else
+            {
+
+              element.find(".fc-title").addClass("Reserved-bg")
             }
           },
           eventClick: function (calEvent, jsEvent, view) {
@@ -238,6 +249,7 @@
     <i class="close icon"></i>
     <div class="header">
       拜會資訊
+    
     </div>
     <form class="ui form content">
       <div class="content">

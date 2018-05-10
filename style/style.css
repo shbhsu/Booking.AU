@@ -15,3 +15,16 @@
     font-size: 18px;
     font-weight: bold;
   }
+  .fc-title
+  {
+    padding: 0 10px 0 10px;
+  }
+  .available-bg{
+    background:#9bf2f0;
+  }
+  .Reserved-bg{
+    background: #dedfe0;
+  }
+  .NonReserve-bg{
+    background: #ffc4cd;
+  }
