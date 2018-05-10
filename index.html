@@ -251,7 +251,7 @@
       拜會資訊
     
     </div>
-    <form class="ui form content">
+    <div class="ui form content">
       <div class="content">
 
         <div class="ui error message"></div>
@@ -291,7 +291,7 @@
         </div>
       </div>
 
-    </form>
+    </div>
   </div>
 
 
@@ -341,6 +341,7 @@
           .fail(function (jqXHR, textStatus, errorThrown) {
             console.log("HTTP Request Failed");
             toastr.error("伺服器忙碌中請再試一次!", '錯誤', { timeOut: 5000 })
+            //alert(errorThrown)
           })
           .always(function () {
             /* ... */
@@ -350,7 +351,7 @@
       }
     }
     else {
-
+        return;
     }
 
 
